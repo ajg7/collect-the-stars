@@ -7,7 +7,11 @@ public class PlayerMovement : MonoBehaviour
 {
 
     Rigidbody rb;
-    int wholeNumber = 3;
+    [SerializeField] float movementSpeed = 6f;
+    [SerializeField] float jumpForce = 5f;
+    [SerializeField] Transform groundCheck;
+    [SerializeField] LayerMask ground;
+    [SerializeField] AudioSource jumpSound;
 
     void Start()
     {
@@ -16,29 +20,37 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown("space"))
-        {
-            rb.velocity = new Vector3(0, 5, 0);
-        }
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
 
-        if (Input.GetKey("up")) 
-        {
-            rb.velocity = new Vector3(0, 0, 5);
-        }
+        rb.velocity = new Vector3(horizontalInput * movementSpeed, rb.velocity.y, verticalInput * movementSpeed);
 
-        if (Input.GetKey("down")) 
+        if (Input.GetButtonDown("Jump") && IsGrounded())
         {
-            rb.velocity = new Vector3(0, 0, -5);
-        }
-
-        if (Input.GetKey("right")) 
-        {
-            rb.velocity = new Vector3(5, 0, 0);
-        }
-
-        if (Input.GetKey("left")) 
-        {
-            rb.velocity = new Vector3(-5, 0, 0);
+            Jump();
         }
     }
+
+    void Jump()
+    {
+        rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+        jumpSound.Play();
+    } 
+        
+
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy Head"))
+        {
+            Destroy(collision.transform.parent.gameObject);
+            Jump();
+        }
+    }
+
+    bool IsGrounded()
+    {
+        return Physics.CheckSphere(groundCheck.position, 0.1f, ground);
+    }
+    
 }
