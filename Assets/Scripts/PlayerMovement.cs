@@ -12,10 +12,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask ground;
     [SerializeField] AudioSource jumpSound;
+    Animator animator;
+    [SerializeField] float acceleration = 0.1f;
+    [SerializeField] float deceleration = 0.5f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -28,6 +32,16 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
             Jump();
+        }
+
+        if (rb.velocity.z > 0 && IsGrounded())
+        {
+            animator.SetBool("isRunning", true);
+        }
+
+        if (rb.velocity.z <= 0)
+        {
+            animator.SetBool("isRunning", false);
         }
     }
 
